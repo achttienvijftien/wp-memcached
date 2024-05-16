@@ -1,7 +1,7 @@
 {
   "name": "achttienvijftien/wp-memcached",
   "description": "The real Memcached (not Memcache) backend for the WP Object Cache",
-  "type": "wordpress-dropin",
+  "type": "library",
   "keywords": [
     "wordpress",
     "plugin",
