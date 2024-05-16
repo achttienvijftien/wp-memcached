@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Format code according to PHPCS results (still a lot of errors and warnings remaining)
+- Fix PHP 8.2 dynamic properties deprecation warnings
 
 ### Added
 

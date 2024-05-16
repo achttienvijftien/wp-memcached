@@ -137,6 +137,34 @@ if ( class_exists( 'Memcached' ) ) {
 
 		private int $default_expiration = 0;
 
+		/**
+		 * Prefix to use for cache keys when group from global groups is used.
+		 *
+		 * @var string
+		 */
+		private string $global_prefix;
+
+		/**
+		 * Extra prefix for cache keys if multisite.
+		 *
+		 * @var string
+		 */
+		private string $blog_prefix;
+
+		/**
+		 * Hit counter.
+		 *
+		 * @var int
+		 */
+		private $cache_hits;
+
+		/**
+		 * Miss counter.
+		 *
+		 * @var int
+		 */
+		private $cache_misses;
+
 		public function add( $id, $data, $group = 'default', $expire = 0 ) {
 			$key = $this->key( $id, $group );
 
