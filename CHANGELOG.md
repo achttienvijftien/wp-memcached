@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Format code according to PHPCS results (still a lot of errors and warnings remaining)
+
 ### Added
 
 - Add Composer file
+- Add code styling tools
 
 ### Changed
 

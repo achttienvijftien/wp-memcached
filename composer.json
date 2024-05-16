@@ -22,5 +22,14 @@
     "composer/installers": "^1.8",
     "koodimonni/composer-dropin-installer": "^1.4"
   },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
+    "phpcompatibility/phpcompatibility-wp": "*",
+    "achttienvijftien/building-techniques": "^1.0"
+  },
+  "scripts": {
+    "format": "phpcbf --report-summary --report-source",
+    "lint": "phpcs"
+  },
   "minimum-stability": "stable"
 }
