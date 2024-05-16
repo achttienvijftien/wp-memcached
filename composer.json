@@ -1,0 +1,26 @@
+{
+  "name": "achttienvijftien/wp-memcached",
+  "description": "The real Memcached (not Memcache) backend for the WP Object Cache",
+  "type": "wordpress-dropin",
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "memcached",
+    "memcache"
+  ],
+  "homepage": "https://www.1815.nl",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "1815",
+      "email": "it@1815.nl",
+      "homepage": "https://www.1815.nl"
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "composer/installers": "^1.8",
+    "koodimonni/composer-dropin-installer": "^1.4"
+  },
+  "minimum-stability": "stable"
+}

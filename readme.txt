@@ -1,4 +1,4 @@
-=== Memcached Redux ===
+=== WP Memcached ===
 Contributors: wonderboymusic, ryan, sivel, mikeschroder, Ipstenu, batmoo
 Tags: cache, Memcached, admin, manage cache, object cache, WP Object Cache
 Requires at least: 3.0
@@ -30,7 +30,7 @@ Blog Post: [http://scotty-t.com/2012/06/05/memcached-redux/](http://scotty-t.com
 == Installation ==
 1. Install [memcached](http://danga.com/memcached) on at least one server. Note the connection info. The default is `127.0.0.1:11211`.
 
-1. Install the [PECL memcached extension](http://pecl.php.net/package/memcached) 
+1. Install the [PECL memcached extension](http://pecl.php.net/package/memcached)
 
 1. Copy object-cache.php to wp-content
 
@@ -54,7 +54,7 @@ Blog Post: [http://scotty-t.com/2012/06/05/memcached-redux/](http://scotty-t.com
 * Allows graceful fallback to database object cache in WordPress 3.7+ for users without PECL Memcached available.
 * Fixes warning due to replace() call, as it does not take a compression argument in Memcached.
 
-= 0.1.1 = 
+= 0.1.1 =
 * Fixes a problem with the get_option() function and the return value of wp_cache_get() on Linux
 
 = 0.1 =
