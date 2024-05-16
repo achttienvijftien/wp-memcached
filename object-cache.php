@@ -3,8 +3,9 @@
  * Plugin Name: WP Memcached
  * Plugin URI: https://github.com/achttienvijftien/wp-memcached
  * Description: The real Memcached (not Memcache) backend for the WP Object Cache.
- * Version: 0.1.7
+ * Version: 1.0.0
  * Requires PHP: 8.0
+ * Tested up to: 6.5.3
  * Author: 1815
  * Author URI: https://www.1815.nl
  */

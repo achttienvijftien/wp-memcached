@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-05-16
+
 ### Fixed
 
 - Format code according to PHPCS results (still a lot of errors and warnings remaining)
@@ -53,4 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[unreleased]: https://github.com/achttienvijftien/wp-memcached/compare/0.1.7...main
+[unreleased]: https://github.com/achttienvijftien/wp-memcached/compare/1.0.0...main
+
+[1.0.0]: https://github.com/achttienvijftien/wp-memcached/compare/0.1.7...1.0.0

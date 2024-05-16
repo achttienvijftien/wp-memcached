@@ -1,9 +1,11 @@
 === WP Memcached ===
 Contributors: wonderboymusic, ryan, sivel, mikeschroder, Ipstenu, batmoo
-Tags: cache, Memcached, admin, manage cache, object cache, WP Object Cache
+Tags: cache, memcached, memcache, admin, manage cache, object cache, WP Object Cache
 Requires at least: 3.0
-Tested up to: 5.4.1
-Stable Tag: 0.1.7
+Tested up to: 6.5.3
+Stable tag: 1.0.0
+License: GPLv3 or later
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 Uses the Memcached class (not the Memcache class) to implement WP Object Cache
 
