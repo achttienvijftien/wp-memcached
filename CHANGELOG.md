@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2024-12-05
+
 ### Changed
 
 - Add `^2.0` to `composer/installers` constraint
@@ -59,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[unreleased]: https://github.com/achttienvijftien/wp-memcached/compare/1.0.0...main
+[unreleased]: https://github.com/achttienvijftien/wp-memcached/compare/1.1.0...main
+
+[1.1.0]: https://github.com/achttienvijftien/wp-memcached/compare/1.0.0...1.1.0
 
 [1.0.0]: https://github.com/achttienvijftien/wp-memcached/compare/0.1.7...1.0.0

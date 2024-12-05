@@ -3,7 +3,7 @@ Contributors: wonderboymusic, ryan, sivel, mikeschroder, Ipstenu, batmoo
 Tags: cache, memcached, memcache, admin, manage cache, object cache, WP Object Cache
 Requires at least: 3.0
 Tested up to: 6.5.3
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
