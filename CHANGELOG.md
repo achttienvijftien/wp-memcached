@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bring the drop-in to the `achttienvijftien/building-techniques` coding standard (behavior-neutral): full docblocks, strict comparisons, explicit boolean precedence, no error silencing. phpcs now reports zero violations.
+
 ## [1.1.0] - 2024-12-05
 
 ### Changed

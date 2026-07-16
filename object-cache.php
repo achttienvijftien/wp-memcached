@@ -8,7 +8,11 @@
  * Tested up to: 6.7.1
  * Author: 1815
  * Author URI: https://www.1815.nl
+ *
+ * @package WP_Memcached
  */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- WordPress drop-ins must define the API functions and the backing class in one file.
 
 if ( ! defined( 'WP_CACHE_KEY_SALT' ) ) {
 	define( 'WP_CACHE_KEY_SALT', '' );
@@ -16,42 +20,98 @@ if ( ! defined( 'WP_CACHE_KEY_SALT' ) ) {
 
 if ( class_exists( 'Memcached' ) ) {
 
+	/**
+	 * Adds a value to the cache if its key is not already set.
+	 *
+	 * @param string $key    Cache key.
+	 * @param mixed  $data   Value to store.
+	 * @param string $group  Cache group.
+	 * @param int    $expire Expiration in seconds, 0 for the default.
+	 *
+	 * @return bool
+	 */
 	function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
 		global $wp_object_cache;
 
 		return $wp_object_cache->add( $key, $data, $group, $expire );
 	}
 
+	/**
+	 * Increments a numeric cache value.
+	 *
+	 * @param string $key   Cache key.
+	 * @param int    $n     Amount to increment by.
+	 * @param string $group Cache group.
+	 *
+	 * @return int|false
+	 */
 	function wp_cache_incr( $key, $n = 1, $group = '' ) {
 		global $wp_object_cache;
 
 		return $wp_object_cache->incr( $key, $n, $group );
 	}
 
+	/**
+	 * Decrements a numeric cache value.
+	 *
+	 * @param string $key   Cache key.
+	 * @param int    $n     Amount to decrement by.
+	 * @param string $group Cache group.
+	 *
+	 * @return int|false
+	 */
 	function wp_cache_decr( $key, $n = 1, $group = '' ) {
 		global $wp_object_cache;
 
 		return $wp_object_cache->decr( $key, $n, $group );
 	}
 
+	/**
+	 * Closes the cache connections.
+	 *
+	 * @return void
+	 */
 	function wp_cache_close() {
 		global $wp_object_cache;
 
-		return $wp_object_cache->close();
+		$wp_object_cache->close();
 	}
 
+	/**
+	 * Deletes a key from the cache.
+	 *
+	 * @param string $key   Cache key.
+	 * @param string $group Cache group.
+	 *
+	 * @return bool
+	 */
 	function wp_cache_delete( $key, $group = '' ) {
 		global $wp_object_cache;
 
 		return $wp_object_cache->delete( $key, $group );
 	}
 
+	/**
+	 * Flushes all cache buckets.
+	 *
+	 * @return bool
+	 */
 	function wp_cache_flush() {
 		global $wp_object_cache;
 
 		return $wp_object_cache->flush();
 	}
 
+	/**
+	 * Retrieves a value from the cache.
+	 *
+	 * @param string $key   Cache key.
+	 * @param string $group Cache group.
+	 * @param bool   $force Whether to bypass the runtime cache.
+	 * @param bool   $found Set to whether the key was found, passed by reference.
+	 *
+	 * @return mixed Cached value, false on miss.
+	 */
 	function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 		global $wp_object_cache;
 
@@ -59,12 +119,14 @@ if ( class_exists( 'Memcached' ) ) {
 	}
 
 	/**
-	 * $keys_and_groups = array(
-	 *      array( 'key', 'group' ),
-	 *      array( 'key', '' ),
-	 *      array( 'key', 'group' ),
-	 *      array( 'key' )
-	 * );
+	 * Retrieves multiple values using key and group pairs.
+	 *
+	 * Example: array( array( 'key', 'group' ), array( 'key' ) ).
+	 *
+	 * @param array  $key_and_groups Array of key and group pairs to fetch.
+	 * @param string $bucket         Server bucket to read from.
+	 *
+	 * @return array Values in the order of the given pairs.
 	 */
 	function wp_cache_get_multi( $key_and_groups, $bucket = 'default' ) {
 		global $wp_object_cache;
@@ -73,45 +135,90 @@ if ( class_exists( 'Memcached' ) ) {
 	}
 
 	/**
-	 * $items = array(
-	 *      array( 'key', 'data', 'group' ),
-	 *      array( 'key', 'data' )
-	 * );
+	 * Stores multiple key, data and group triplets.
+	 *
+	 * Example: array( array( 'key', 'data', 'group' ), array( 'key', 'data' ) ).
+	 *
+	 * @param array  $items  Array of key, data and group triplets to store.
+	 * @param int    $expire Expiration in seconds, 0 for the default.
+	 * @param string $group  Fallback cache group.
+	 *
+	 * @return void
 	 */
 	function wp_cache_set_multi( $items, $expire = 0, $group = 'default' ) {
 		global $wp_object_cache;
 
-		return $wp_object_cache->set_multi( $items, $expire = 0, $group = 'default' );
+		$wp_object_cache->set_multi( $items, $expire = 0, $group = 'default' );
 	}
 
+	/**
+	 * Initializes the global object cache instance.
+	 *
+	 * @return void
+	 */
 	function wp_cache_init() {
 		global $wp_object_cache;
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- The drop-in owns the $wp_object_cache global.
 		$wp_object_cache = new WP_Object_Cache();
 	}
 
+	/**
+	 * Replaces a value in the cache if its key already exists.
+	 *
+	 * @param string $key    Cache key.
+	 * @param mixed  $data   Value to store.
+	 * @param string $group  Cache group.
+	 * @param int    $expire Expiration in seconds, 0 for the default.
+	 *
+	 * @return bool
+	 */
 	function wp_cache_replace( $key, $data, $group = '', $expire = 0 ) {
 		global $wp_object_cache;
 
 		return $wp_object_cache->replace( $key, $data, $group, $expire );
 	}
 
+	/**
+	 * Stores a value in the cache, deleting it instead while WordPress is installing.
+	 *
+	 * @param string $key    Cache key.
+	 * @param mixed  $data   Value to store.
+	 * @param string $group  Cache group.
+	 * @param int    $expire Expiration in seconds, 0 for the default.
+	 *
+	 * @return bool
+	 */
 	function wp_cache_set( $key, $data, $group = '', $expire = 0 ) {
 		global $wp_object_cache;
 
-		if ( defined( 'WP_INSTALLING' ) == false ) {
+		if ( ! defined( 'WP_INSTALLING' ) ) {
 			return $wp_object_cache->set( $key, $data, $group, $expire );
-		} else {
-			return $wp_object_cache->delete( $key, $group );
 		}
+
+		return $wp_object_cache->delete( $key, $group );
 	}
 
+	/**
+	 * Registers groups that share their cache across sites.
+	 *
+	 * @param string|array $groups Group name or list of group names.
+	 *
+	 * @return void
+	 */
 	function wp_cache_add_global_groups( $groups ) {
 		global $wp_object_cache;
 
 		$wp_object_cache->add_global_groups( $groups );
 	}
 
+	/**
+	 * Registers groups that must not be persisted to memcached.
+	 *
+	 * @param string|array $groups Group name or list of group names.
+	 *
+	 * @return void
+	 */
 	function wp_cache_add_non_persistent_groups( $groups ) {
 		global $wp_object_cache;
 
@@ -119,24 +226,78 @@ if ( class_exists( 'Memcached' ) ) {
 	}
 
 	/**
-	 * Class WP_Object_Cache.
+	 * Memcached-backed implementation of the WordPress object cache.
 	 */
 	class WP_Object_Cache {
+		/**
+		 * Groups that share their cache across sites.
+		 *
+		 * @var array
+		 */
 		public array $global_groups = [];
 
+		/**
+		 * Groups that are never persisted to memcached.
+		 *
+		 * @var array
+		 */
 		private array $no_mc_groups = [];
 
+		/**
+		 * In-process runtime cache keyed by full cache key.
+		 *
+		 * @var array
+		 */
 		public array $cache = [];
 
+		/**
+		 * Memcached connections keyed by server bucket.
+		 *
+		 * @var array
+		 */
 		private array $mc = [];
 
+		/**
+		 * Operation counters.
+		 *
+		 * @var array
+		 */
 		public array $stats = [];
 
+		/**
+		 * Log of performed operations per group.
+		 *
+		 * @var array
+		 */
 		public array $group_ops = [];
 
+		/**
+		 * Whether the cache is enabled.
+		 *
+		 * @var bool
+		 */
 		public bool $cache_enabled = true;
 
+		/**
+		 * Expiration in seconds applied when none is given.
+		 *
+		 * @var int
+		 */
 		private int $default_expiration = 0;
+
+		/**
+		 * Whether debug output is enabled.
+		 *
+		 * @var bool
+		 */
+		public bool $debug = false;
+
+		/**
+		 * Collected debug information.
+		 *
+		 * @var array
+		 */
+		public array $memcache_debug = [];
 
 		/**
 		 * Prefix to use for cache keys when group from global groups is used.
@@ -166,6 +327,16 @@ if ( class_exists( 'Memcached' ) ) {
 		 */
 		private $cache_misses;
 
+		/**
+		 * Adds a value to the cache if its key is not already set.
+		 *
+		 * @param string $id     Cache key.
+		 * @param mixed  $data   Value to store.
+		 * @param string $group  Cache group.
+		 * @param int    $expire Expiration in seconds, 0 for the default.
+		 *
+		 * @return bool
+		 */
 		public function add( $id, $data, $group = 'default', $expire = 0 ) {
 			$key = $this->key( $id, $group );
 
@@ -173,7 +344,7 @@ if ( class_exists( 'Memcached' ) ) {
 				$data = clone $data;
 			}
 
-			if ( in_array( $group, $this->no_mc_groups ) ) {
+			if ( in_array( $group, $this->no_mc_groups, true ) ) {
 				$this->cache[ $key ] = $data;
 
 				return true;
@@ -182,11 +353,11 @@ if ( class_exists( 'Memcached' ) ) {
 			}
 
 			$mc     =& $this->get_mc( $group );
-			$expire = ( 0 == $expire ) ? $this->default_expiration : $expire;
+			$expire = ( 0 === (int) $expire ) ? $this->default_expiration : (int) $expire;
 			$result = $mc->add( $key, $data, $expire );
 
 			if ( false !== $result ) {
-				++ $this->stats['add'];
+				++$this->stats['add'];
 				$this->group_ops[ $group ][] = "add $id";
 				$this->cache[ $key ]         = $data;
 			}
@@ -194,6 +365,13 @@ if ( class_exists( 'Memcached' ) ) {
 			return $result;
 		}
 
+		/**
+		 * Registers groups that share their cache across sites.
+		 *
+		 * @param string|array $groups Group name or list of group names.
+		 *
+		 * @return void
+		 */
 		public function add_global_groups( $groups ) {
 			if ( ! is_array( $groups ) ) {
 				$groups = (array) $groups;
@@ -203,6 +381,13 @@ if ( class_exists( 'Memcached' ) ) {
 			$this->global_groups = array_unique( $this->global_groups );
 		}
 
+		/**
+		 * Registers groups that must not be persisted to memcached.
+		 *
+		 * @param string|array $groups Group name or list of group names.
+		 *
+		 * @return void
+		 */
 		public function add_non_persistent_groups( $groups ) {
 			if ( ! is_array( $groups ) ) {
 				$groups = (array) $groups;
@@ -212,6 +397,15 @@ if ( class_exists( 'Memcached' ) ) {
 			$this->no_mc_groups = array_unique( $this->no_mc_groups );
 		}
 
+		/**
+		 * Increments a numeric cache value.
+		 *
+		 * @param string $id    Cache key.
+		 * @param int    $n     Amount to increment by.
+		 * @param string $group Cache group.
+		 *
+		 * @return int|false
+		 */
 		public function incr( $id, $n = 1, $group = 'default' ) {
 			$key                 = $this->key( $id, $group );
 			$mc                  =& $this->get_mc( $group );
@@ -220,6 +414,15 @@ if ( class_exists( 'Memcached' ) ) {
 			return $this->cache[ $key ];
 		}
 
+		/**
+		 * Decrements a numeric cache value.
+		 *
+		 * @param string $id    Cache key.
+		 * @param int    $n     Amount to decrement by.
+		 * @param string $group Cache group.
+		 *
+		 * @return int|false
+		 */
 		public function decr( $id, $n = 1, $group = 'default' ) {
 			$key                 = $this->key( $id, $group );
 			$mc                  =& $this->get_mc( $group );
@@ -228,14 +431,27 @@ if ( class_exists( 'Memcached' ) ) {
 			return $this->cache[ $key ];
 		}
 
+		/**
+		 * Closes the cache connections.
+		 *
+		 * @return void
+		 */
 		public function close() {
 			// Silence is Golden.
 		}
 
+		/**
+		 * Deletes a key from the cache.
+		 *
+		 * @param string $id    Cache key.
+		 * @param string $group Cache group.
+		 *
+		 * @return bool
+		 */
 		public function delete( $id, $group = 'default' ) {
 			$key = $this->key( $id, $group );
 
-			if ( in_array( $group, $this->no_mc_groups ) ) {
+			if ( in_array( $group, $this->no_mc_groups, true ) ) {
 				unset( $this->cache[ $key ] );
 
 				return true;
@@ -246,7 +462,7 @@ if ( class_exists( 'Memcached' ) ) {
 			$result = $mc->delete( $key );
 
 			if ( false !== $result ) {
-				++ $this->stats['delete'];
+				++$this->stats['delete'];
 				$this->group_ops[ $group ][] = "delete $id";
 				unset( $this->cache[ $key ] );
 			}
@@ -254,9 +470,16 @@ if ( class_exists( 'Memcached' ) ) {
 			return $result;
 		}
 
+		/**
+		 * Flushes all cache buckets unless running multi-blog.
+		 *
+		 * @return bool
+		 */
 		public function flush() {
+			$has_custom_user_tables = defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' );
+
 			// Don't flush if multi-blog.
-			if ( function_exists( 'is_site_admin' ) || defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' ) ) {
+			if ( function_exists( 'is_site_admin' ) || $has_custom_user_tables ) {
 				return true;
 			}
 
@@ -268,25 +491,36 @@ if ( class_exists( 'Memcached' ) ) {
 			return $ret;
 		}
 
+		/**
+		 * Retrieves a value, serving from the runtime cache before querying memcached.
+		 *
+		 * @param string $id    Cache key.
+		 * @param string $group Cache group.
+		 * @param bool   $force Whether to bypass the runtime cache.
+		 * @param bool   $found Set to whether the key was found, passed by reference.
+		 *
+		 * @return mixed Cached value, false on miss.
+		 */
 		public function get( $id, $group = 'default', $force = false, &$found = null ) {
 			$key   = $this->key( $id, $group );
 			$mc    =& $this->get_mc( $group );
 			$found = false;
 
-			if ( isset( $this->cache[ $key ] ) && ( ! $force || in_array( $group, $this->no_mc_groups ) ) ) {
+			if ( isset( $this->cache[ $key ] ) && ( ! $force || in_array( $group, $this->no_mc_groups, true ) ) ) {
 				$found = true;
 				if ( is_object( $this->cache[ $key ] ) ) {
 					$value = clone $this->cache[ $key ];
 				} else {
 					$value = $this->cache[ $key ];
 				}
-			} elseif ( in_array( $group, $this->no_mc_groups ) ) {
-				$this->cache[ $key ] = $value = false;
+			} elseif ( in_array( $group, $this->no_mc_groups, true ) ) {
+				$value               = false;
+				$this->cache[ $key ] = $value;
 			} else {
 				$value = $mc->get( $key );
-				if ( empty( $value ) || ( is_integer( $value ) && - 1 == $value ) ) {
+				if ( empty( $value ) || ( is_int( $value ) && -1 === $value ) ) {
 					$value = false;
-					$found = $mc->getResultCode() !== Memcached::RES_NOTFOUND;
+					$found = Memcached::RES_NOTFOUND !== $mc->getResultCode();
 				} else {
 					$found = true;
 				}
@@ -294,10 +528,10 @@ if ( class_exists( 'Memcached' ) ) {
 			}
 
 			if ( $found ) {
-				++ $this->stats['get'];
+				++$this->stats['get'];
 				$this->group_ops[ $group ][] = "get $id";
 			} else {
-				++ $this->stats['miss'];
+				++$this->stats['miss'];
 			}
 
 			if ( 'checkthedatabaseplease' === $value ) {
@@ -308,6 +542,14 @@ if ( class_exists( 'Memcached' ) ) {
 			return $value;
 		}
 
+		/**
+		 * Retrieves multiple values using key and group pairs.
+		 *
+		 * @param array  $keys  Array of key and group pairs to fetch.
+		 * @param string $group Fallback cache group.
+		 *
+		 * @return array Values in the order of the given pairs.
+		 */
 		public function get_multi( $keys, $group = 'default' ) {
 			$return = [];
 			$gets   = [];
@@ -319,7 +561,7 @@ if ( class_exists( 'Memcached' ) ) {
 				}
 
 				[ $id, $group ] = (array) $values;
-				$key = $this->key( $id, $group );
+				$key            = $this->key( $id, $group );
 
 				if ( isset( $this->cache[ $key ] ) ) {
 
@@ -328,7 +570,7 @@ if ( class_exists( 'Memcached' ) ) {
 					} else {
 						$return[ $key ] = $this->cache[ $key ];
 					}
-				} elseif ( in_array( $group, $this->no_mc_groups ) ) {
+				} elseif ( in_array( $group, $this->no_mc_groups, true ) ) {
 					$return[ $key ] = false;
 
 				} else {
@@ -342,19 +584,27 @@ if ( class_exists( 'Memcached' ) ) {
 				$return  = array_merge( $return, $joined );
 			}
 
-			++ $this->stats['get_multi'];
+			++$this->stats['get_multi'];
 			$this->group_ops[ $group ][] = "get_multi $id";
 			$this->cache                 = array_merge( $this->cache, $return );
 
 			return array_values( $return );
 		}
 
+		/**
+		 * Builds the full memcached key for a key and group pair.
+		 *
+		 * @param string $key   Cache key.
+		 * @param string $group Cache group.
+		 *
+		 * @return string
+		 */
 		public function key( $key, $group ) {
 			if ( empty( $group ) ) {
 				$group = 'default';
 			}
 
-			if ( false !== array_search( $group, $this->global_groups ) ) {
+			if ( in_array( $group, $this->global_groups, true ) ) {
 				$prefix = $this->global_prefix;
 			} else {
 				$prefix = $this->blog_prefix;
@@ -363,9 +613,19 @@ if ( class_exists( 'Memcached' ) ) {
 			return preg_replace( '/\s+/', '', WP_CACHE_KEY_SALT . "$prefix$group:$key" );
 		}
 
+		/**
+		 * Replaces a value in the cache if its key already exists.
+		 *
+		 * @param string $id     Cache key.
+		 * @param mixed  $data   Value to store.
+		 * @param string $group  Cache group.
+		 * @param int    $expire Expiration in seconds, 0 for the default.
+		 *
+		 * @return bool
+		 */
 		public function replace( $id, $data, $group = 'default', $expire = 0 ) {
 			$key    = $this->key( $id, $group );
-			$expire = ( 0 == $expire ) ? $this->default_expiration : $expire;
+			$expire = ( 0 === (int) $expire ) ? $this->default_expiration : (int) $expire;
 			$mc     =& $this->get_mc( $group );
 
 			if ( is_object( $data ) ) {
@@ -380,6 +640,16 @@ if ( class_exists( 'Memcached' ) ) {
 			return $result;
 		}
 
+		/**
+		 * Stores a value in the runtime cache and memcached.
+		 *
+		 * @param string $id     Cache key.
+		 * @param mixed  $data   Value to store.
+		 * @param string $group  Cache group.
+		 * @param int    $expire Expiration in seconds, 0 for the default.
+		 *
+		 * @return bool
+		 */
 		public function set( $id, $data, $group = 'default', $expire = 0 ) {
 			$key = $this->key( $id, $group );
 			if ( isset( $this->cache[ $key ] ) && ( 'checkthedatabaseplease' === $this->cache[ $key ] ) ) {
@@ -392,21 +662,30 @@ if ( class_exists( 'Memcached' ) ) {
 
 			$this->cache[ $key ] = $data;
 
-			if ( in_array( $group, $this->no_mc_groups ) ) {
+			if ( in_array( $group, $this->no_mc_groups, true ) ) {
 				return true;
 			}
 
-			$expire = ( 0 == $expire ) ? $this->default_expiration : $expire;
+			$expire = ( 0 === (int) $expire ) ? $this->default_expiration : (int) $expire;
 			$mc     =& $this->get_mc( $group );
 			$result = $mc->set( $key, $data, $expire );
 
 			return $result;
 		}
 
+		/**
+		 * Stores multiple key, data and group triplets through one setMulti call.
+		 *
+		 * @param array  $items  Array of key, data and group triplets to store.
+		 * @param int    $expire Expiration in seconds, 0 for the default.
+		 * @param string $group  Fallback cache group.
+		 *
+		 * @return void
+		 */
 		public function set_multi( $items, $expire = 0, $group = 'default' ) {
 			$sets   = [];
 			$mc     =& $this->get_mc( $group );
-			$expire = ( 0 == $expire ) ? $this->default_expiration : $expire;
+			$expire = ( 0 === (int) $expire ) ? $this->default_expiration : (int) $expire;
 
 			foreach ( $items as $i => $item ) {
 				if ( empty( $item[2] ) ) {
@@ -426,7 +705,7 @@ if ( class_exists( 'Memcached' ) ) {
 
 				$this->cache[ $key ] = $data;
 
-				if ( in_array( $group, $this->no_mc_groups ) ) {
+				if ( in_array( $group, $this->no_mc_groups, true ) ) {
 					continue;
 				}
 
@@ -438,6 +717,13 @@ if ( class_exists( 'Memcached' ) ) {
 			}
 		}
 
+		/**
+		 * Wraps a logged operation line in a colored span for debug output.
+		 *
+		 * @param string $line Logged operation line.
+		 *
+		 * @return string
+		 */
 		public function colorize_debug_line( $line ) {
 			$colors = [
 				'get'    => 'green',
@@ -453,6 +739,11 @@ if ( class_exists( 'Memcached' ) ) {
 			return $cmd2 . esc_html( substr( $line, strlen( $cmd ) ) ) . "\n";
 		}
 
+		/**
+		 * Prints operation counters and the per-group operation log.
+		 *
+		 * @return void
+		 */
 		public function stats() {
 			echo "<p>\n";
 			foreach ( $this->stats as $stat => $n ) {
@@ -462,9 +753,11 @@ if ( class_exists( 'Memcached' ) ) {
 			echo "</p>\n";
 			echo '<h3>Memcached:</h3>';
 			foreach ( $this->group_ops as $group => $ops ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only debug output toggle.
 				if ( ! isset( $_GET['debug_queries'] ) && 500 < count( $ops ) ) {
 					$ops = array_slice( $ops, 0, 500 );
-					echo "<big>Too many to show! <a href='" . esc_url( add_query_arg( 'debug_queries', 'true' ) ) . "'>Show them anyway</a>.</big>\n";
+					echo "<big>Too many to show! <a href='" . esc_url( add_query_arg( 'debug_queries', 'true' ) ) . "'>"
+						. "Show them anyway</a>.</big>\n";
 				}
 				echo '<h4>' . esc_html( $group ) . ' commands</h4>';
 				echo "<pre>\n";
@@ -472,15 +765,24 @@ if ( class_exists( 'Memcached' ) ) {
 				foreach ( $ops as $op ) {
 					$lines[] = $this->colorize_debug_line( $op );
 				}
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Debug output method by design.
 				print_r( $lines );
 				echo "</pre>\n";
 			}
 
 			if ( ! empty( $this->debug ) && $this->debug ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_dump -- Debug output method by design.
 				var_dump( $this->memcache_debug );
 			}
 		}
 
+		/**
+		 * Returns the memcached connection for a group, falling back to the default bucket.
+		 *
+		 * @param string $group Cache group.
+		 *
+		 * @return Memcached
+		 */
 		public function &get_mc( $group ) {
 			if ( isset( $this->mc[ $group ] ) ) {
 				return $this->mc[ $group ];
@@ -489,6 +791,9 @@ if ( class_exists( 'Memcached' ) ) {
 			return $this->mc['default'];
 		}
 
+		/**
+		 * Connects the configured server buckets and initializes key prefixes.
+		 */
 		public function __construct() {
 
 			$this->stats = [
@@ -518,7 +823,9 @@ if ( class_exists( 'Memcached' ) ) {
 
 				$instances = [];
 				foreach ( $servers as $server ) {
-					@list( $node, $port ) = explode( ':', $server );
+					$parts = explode( ':', $server );
+					$node  = $parts[0];
+					$port  = $parts[1] ?? '';
 					if ( empty( $port ) ) {
 						$port = ini_get( 'memcache.default_port' );
 					}
@@ -536,8 +843,9 @@ if ( class_exists( 'Memcached' ) ) {
 			$this->global_prefix = '';
 			$this->blog_prefix   = '';
 			if ( function_exists( 'is_multisite' ) ) {
-				$this->global_prefix = ( is_multisite() || defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' ) ) ? '' : $table_prefix;
-				$this->blog_prefix   = ( is_multisite() ? $blog_id : $table_prefix ) . ':';
+				$has_custom_user_tables = defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' );
+				$this->global_prefix    = ( is_multisite() || $has_custom_user_tables ) ? '' : $table_prefix;
+				$this->blog_prefix      = ( is_multisite() ? $blog_id : $table_prefix ) . ':';
 			}
 
 			$this->cache_hits   =& $this->stats['get'];
