@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bring the drop-in to the `achttienvijftien/building-techniques` coding standard (behavior-neutral): full docblocks, strict comparisons, explicit boolean precedence, no error silencing. phpcs now reports zero violations.
 - Native return types on all `WP_Object_Cache` methods; parameters stay untyped on purpose since WordPress core calls them with mixed values. `flush()` now returns a real boolean instead of an int.
+- The per-operation debug log (`group_ops`) is only recorded when debugging is enabled via `WP_MEMCACHED_DEBUG` or `WP_DEBUG`, removing per-request logging overhead in production. Stats counters are unaffected.
 
 ### Removed
 

@@ -209,6 +209,23 @@ class WPObjectCacheTest extends TestCase {
 		$this->assertFalse( $this->raw->get( $this->cache->key( 'wipe', 'grp' ) ) );
 	}
 
+	public function test_group_ops_are_only_recorded_when_debugging() {
+		$this->cache->debug = false;
+		$this->cache->set( 'quiet', 'v', 'grp' );
+		$this->cache->get( 'quiet', 'grp' );
+		$this->cache->delete( 'quiet', 'grp' );
+
+		$this->assertSame( [], $this->cache->group_ops, 'No op log must be recorded with debugging off.' );
+		$this->assertSame( 1, $this->cache->stats['get'], 'Stats counters must still be recorded.' );
+
+		$this->cache->debug = true;
+		$this->cache->set( 'loud', 'v', 'grp' );
+		$this->cache->get( 'loud', 'grp' );
+
+		$this->assertArrayHasKey( 'grp', $this->cache->group_ops );
+		$this->assertContains( 'get loud', $this->cache->group_ops['grp'] );
+	}
+
 	public function test_global_group_roundtrip() {
 		$this->cache->add_global_groups( [ 'site-options-test' ] );
 		$this->cache->set( 'k', 'v', 'site-options-test' );

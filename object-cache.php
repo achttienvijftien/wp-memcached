@@ -279,7 +279,7 @@ if ( class_exists( 'Memcached' ) ) {
 		private int $default_expiration = 0;
 
 		/**
-		 * Whether debug output is enabled.
+		 * Whether the per-operation debug log is recorded, controlled by WP_MEMCACHED_DEBUG or WP_DEBUG.
 		 *
 		 * @var bool
 		 */
@@ -351,8 +351,11 @@ if ( class_exists( 'Memcached' ) ) {
 
 			if ( false !== $result ) {
 				++$this->stats['add'];
-				$this->group_ops[ $group ][] = "add $id";
-				$this->cache[ $key ]         = $data;
+				$this->cache[ $key ] = $data;
+
+				if ( $this->debug ) {
+					$this->group_ops[ $group ][] = "add $id";
+				}
 			}
 
 			return $result;
@@ -456,8 +459,11 @@ if ( class_exists( 'Memcached' ) ) {
 
 			if ( false !== $result ) {
 				++$this->stats['delete'];
-				$this->group_ops[ $group ][] = "delete $id";
 				unset( $this->cache[ $key ] );
+
+				if ( $this->debug ) {
+					$this->group_ops[ $group ][] = "delete $id";
+				}
 			}
 
 			return $result;
@@ -522,7 +528,10 @@ if ( class_exists( 'Memcached' ) ) {
 
 			if ( $found ) {
 				++$this->stats['get'];
-				$this->group_ops[ $group ][] = "get $id";
+
+				if ( $this->debug ) {
+					$this->group_ops[ $group ][] = "get $id";
+				}
 			} else {
 				++$this->stats['miss'];
 			}
@@ -578,8 +587,11 @@ if ( class_exists( 'Memcached' ) ) {
 			}
 
 			++$this->stats['get_multi'];
-			$this->group_ops[ $group ][] = "get_multi $id";
-			$this->cache                 = array_merge( $this->cache, $return );
+			$this->cache = array_merge( $this->cache, $return );
+
+			if ( $this->debug ) {
+				$this->group_ops[ $group ][] = "get_multi $id";
+			}
 
 			return array_values( $return );
 		}
@@ -788,6 +800,9 @@ if ( class_exists( 'Memcached' ) ) {
 		 * Connects the configured server buckets and initializes key prefixes.
 		 */
 		public function __construct() {
+			$this->debug = defined( 'WP_MEMCACHED_DEBUG' )
+				? (bool) WP_MEMCACHED_DEBUG
+				: ( defined( 'WP_DEBUG' ) && WP_DEBUG );
 
 			$this->stats = [
 				'get'       => 0,
