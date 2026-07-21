@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- GitHub Actions CI: phpcs, PHPStan and the wp-env test suite run on every push and pull request.
 - PHPStan static analysis at level 6 with the WordPress extension, zero errors; run with `composer analyse`.
 - Test suite (PHPUnit) with a real memcached server: unit tests for the cache class and `wp_cache_*` functions, plus integration tests running the drop-in as the live object cache inside WordPress via `@wordpress/env`. Run with `pnpm test`.
 
