@@ -119,14 +119,14 @@ if ( class_exists( 'Memcached' ) ) {
 	}
 
 	/**
-	 * Retrieves multiple values using key and group pairs.
+	 * Retrieves multiple values using key and group pairs, false for misses.
 	 *
 	 * Example: array( array( 'key', 'group' ), array( 'key' ) ).
 	 *
-	 * @param array  $key_and_groups Array of key and group pairs to fetch.
-	 * @param string $bucket         Server bucket to read from.
+	 * @param array<int, array<int, string>|string> $key_and_groups Array of key and group pairs to fetch.
+	 * @param string                                $bucket         Server bucket to read from.
 	 *
-	 * @return array Values in the order of the given pairs.
+	 * @return mixed[] Values, runtime-cache hits first, then fetched keys in the given order.
 	 */
 	function wp_cache_get_multi( $key_and_groups, $bucket = 'default' ) {
 		global $wp_object_cache;
@@ -545,52 +545,57 @@ if ( class_exists( 'Memcached' ) ) {
 		}
 
 		/**
-		 * Retrieves multiple values using key and group pairs.
+		 * Retrieves multiple values using key and group pairs, false for misses.
 		 *
-		 * @param array  $keys  Array of key and group pairs to fetch.
-		 * @param string $group Fallback cache group.
+		 * @param array<int, array<int, string>|string> $keys  Array of key and group pairs to fetch.
+		 * @param string                                $group Server bucket group.
 		 *
-		 * @return array Values in the order of the given pairs.
+		 * @return mixed[] Values, runtime-cache hits first, then fetched keys in the given order.
 		 */
 		public function get_multi( $keys, $group = 'default' ): array {
 			$return = [];
 			$gets   = [];
-			foreach ( $keys as $i => $values ) {
-				$mc     =& $this->get_mc( $group );
+
+			foreach ( $keys as $values ) {
 				$values = (array) $values;
 				if ( empty( $values[1] ) ) {
 					$values[1] = 'default';
 				}
 
-				[ $id, $group ] = (array) $values;
-				$key            = $this->key( $id, $group );
+				[ $id, $item_group ] = $values;
+				$key                 = $this->key( $id, $item_group );
 
 				if ( isset( $this->cache[ $key ] ) ) {
-
 					if ( is_object( $this->cache[ $key ] ) ) {
 						$return[ $key ] = clone $this->cache[ $key ];
 					} else {
 						$return[ $key ] = $this->cache[ $key ];
 					}
-				} elseif ( in_array( $group, $this->no_mc_groups, true ) ) {
+				} elseif ( in_array( $item_group, $this->no_mc_groups, true ) ) {
 					$return[ $key ] = false;
-
 				} else {
 					$gets[ $key ] = $key;
 				}
 			}
 
 			if ( ! empty( $gets ) ) {
-				$results = $mc->getMulti( $gets, $null, Memcached::GET_PRESERVE_ORDER );
-				$joined  = array_combine( array_keys( $gets ), array_values( $results ) );
-				$return  = array_merge( $return, $joined );
+				$mc      =& $this->get_mc( $group );
+				$results = $mc->getMulti( array_values( $gets ) );
+
+				if ( ! is_array( $results ) ) {
+					$results = [];
+				}
+
+				foreach ( $gets as $key ) {
+					$return[ $key ] = array_key_exists( $key, $results ) ? $results[ $key ] : false;
+				}
 			}
 
 			++$this->stats['get_multi'];
 			$this->cache = array_merge( $this->cache, $return );
 
 			if ( $this->debug ) {
-				$this->group_ops[ $group ][] = "get_multi $id";
+				$this->group_ops[ $group ][] = 'get_multi ' . implode( ' ', array_keys( $gets ) );
 			}
 
 			return array_values( $return );

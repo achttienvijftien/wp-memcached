@@ -35,6 +35,9 @@ class CacheFunctionsTest extends TestCase {
 	 * Restores the WordPress-booted cache instance.
 	 */
 	protected function tearDown(): void {
+		// The restored instance predates this test's daemon flush, so its runtime cache is stale.
+		$this->previous_instance->cache = [];
+
 		$GLOBALS['wp_object_cache'] = $this->previous_instance;
 	}
 

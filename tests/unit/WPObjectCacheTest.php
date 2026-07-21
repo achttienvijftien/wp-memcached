@@ -34,6 +34,9 @@ class WPObjectCacheTest extends TestCase {
 		$this->raw->addServer( '127.0.0.1', 11211 );
 		$this->raw->flush();
 
+		// The flush wiped the shared daemon; drop the WordPress-booted instance's now-stale runtime cache too.
+		$GLOBALS['wp_object_cache']->cache = [];
+
 		$this->cache = new WP_Object_Cache();
 	}
 
@@ -207,6 +210,32 @@ class WPObjectCacheTest extends TestCase {
 		$this->cache->flush();
 
 		$this->assertFalse( $this->raw->get( $this->cache->key( 'wipe', 'grp' ) ) );
+	}
+
+	public function test_get_multi_mixes_runtime_and_server_hits_with_false_for_misses() {
+		$this->cache->set( 'a', 'va', 'grp' );
+		$this->raw->set( $this->cache->key( 'b', 'other' ), 'vb' );
+
+		$result = $this->cache->get_multi(
+			[
+				[ 'a', 'grp' ],
+				[ 'b', 'other' ],
+				[ 'missing', 'grp' ],
+				'bare-key',
+			]
+		);
+
+		$this->assertSame( [ 'va', 'vb', false, false ], $result );
+
+		// Fetched values must land in the runtime cache.
+		$this->assertSame( 'vb', $this->cache->get( 'b', 'other' ) );
+
+		// Order contract: runtime-cache hits come first, then fetched keys, regardless of request order.
+		$this->raw->set( $this->cache->key( 'server-side', 'grp' ), 'vs' );
+		$this->assertSame(
+			[ 'va', 'vs' ],
+			$this->cache->get_multi( [ [ 'server-side', 'grp' ], [ 'a', 'grp' ] ] )
+		);
 	}
 
 	public function test_group_ops_are_only_recorded_when_debugging() {
