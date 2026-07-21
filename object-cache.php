@@ -139,9 +139,9 @@ if ( class_exists( 'Memcached' ) ) {
 	 *
 	 * Example: array( array( 'key', 'data', 'group' ), array( 'key', 'data' ) ).
 	 *
-	 * @param array  $items  Array of key, data and group triplets to store.
-	 * @param int    $expire Expiration in seconds, 0 for the default.
-	 * @param string $group  Fallback cache group.
+	 * @param array<int, array{0: string, 1: mixed, 2?: string}> $items Array of key, data and group triplets to store.
+	 * @param int                                                $expire Expiration in seconds, 0 for the default.
+	 * @param string                                             $group  Fallback cache group.
 	 *
 	 * @return void
 	 */
@@ -202,7 +202,7 @@ if ( class_exists( 'Memcached' ) ) {
 	/**
 	 * Registers groups that share their cache across sites.
 	 *
-	 * @param string|array $groups Group name or list of group names.
+	 * @param string|string[] $groups Group name or list of group names.
 	 *
 	 * @return void
 	 */
@@ -215,7 +215,7 @@ if ( class_exists( 'Memcached' ) ) {
 	/**
 	 * Registers groups that must not be persisted to memcached.
 	 *
-	 * @param string|array $groups Group name or list of group names.
+	 * @param string|string[] $groups Group name or list of group names.
 	 *
 	 * @return void
 	 */
@@ -232,42 +232,42 @@ if ( class_exists( 'Memcached' ) ) {
 		/**
 		 * Groups that share their cache across sites.
 		 *
-		 * @var array
+		 * @var string[]
 		 */
 		public array $global_groups = [];
 
 		/**
 		 * Groups that are never persisted to memcached.
 		 *
-		 * @var array
+		 * @var string[]
 		 */
 		private array $no_mc_groups = [];
 
 		/**
 		 * In-process runtime cache keyed by full cache key.
 		 *
-		 * @var array
+		 * @var array<string, mixed>
 		 */
 		public array $cache = [];
 
 		/**
 		 * Memcached connections keyed by server bucket.
 		 *
-		 * @var array
+		 * @var array<string, Memcached>
 		 */
 		private array $mc = [];
 
 		/**
 		 * Operation counters.
 		 *
-		 * @var array
+		 * @var array<string, int>
 		 */
 		public array $stats = [];
 
 		/**
 		 * Log of performed operations per group.
 		 *
-		 * @var array
+		 * @var array<string, string[]>
 		 */
 		public array $group_ops = [];
 
@@ -288,7 +288,7 @@ if ( class_exists( 'Memcached' ) ) {
 		/**
 		 * Collected debug information.
 		 *
-		 * @var array
+		 * @var mixed[]
 		 */
 		public array $memcache_debug = [];
 
@@ -307,18 +307,18 @@ if ( class_exists( 'Memcached' ) ) {
 		private string $blog_prefix;
 
 		/**
-		 * Hit counter.
+		 * Hit counter, public to match WordPress core's WP_Object_Cache so diagnostics tools can read it.
 		 *
 		 * @var int
 		 */
-		private $cache_hits;
+		public $cache_hits;
 
 		/**
-		 * Miss counter.
+		 * Miss counter, public to match WordPress core's WP_Object_Cache so diagnostics tools can read it.
 		 *
 		 * @var int
 		 */
-		private $cache_misses;
+		public $cache_misses;
 
 		/**
 		 * Adds a value to the cache if its key is not already set.
@@ -364,7 +364,7 @@ if ( class_exists( 'Memcached' ) ) {
 		/**
 		 * Registers groups that share their cache across sites.
 		 *
-		 * @param string|array $groups Group name or list of group names.
+		 * @param string|string[] $groups Group name or list of group names.
 		 *
 		 * @return void
 		 */
@@ -380,7 +380,7 @@ if ( class_exists( 'Memcached' ) ) {
 		/**
 		 * Registers groups that must not be persisted to memcached.
 		 *
-		 * @param string|array $groups Group name or list of group names.
+		 * @param string|string[] $groups Group name or list of group names.
 		 *
 		 * @return void
 		 */
@@ -686,9 +686,9 @@ if ( class_exists( 'Memcached' ) ) {
 		/**
 		 * Stores multiple key, data and group triplets through one setMulti call.
 		 *
-		 * @param array  $items  Array of key, data and group triplets to store.
-		 * @param int    $expire Expiration in seconds, 0 for the default.
-		 * @param string $group  Fallback cache group.
+		 * @param array<int, array{0: string, 1: mixed, 2?: string}> $items Array of key, data and group triplets to store.
+		 * @param int                                                $expire Expiration in seconds, 0 for the default.
+		 * @param string                                             $group  Fallback cache group.
 		 *
 		 * @return void
 		 */
@@ -757,7 +757,7 @@ if ( class_exists( 'Memcached' ) ) {
 		public function stats(): void {
 			echo "<p>\n";
 			foreach ( $this->stats as $stat => $n ) {
-				echo '<strong>' . esc_html( $stat ) . '</strong> ' . esc_html( $n );
+				echo '<strong>' . esc_html( $stat ) . '</strong> ' . esc_html( (string) $n );
 				echo "<br/>\n";
 			}
 			echo "</p>\n";
@@ -780,7 +780,7 @@ if ( class_exists( 'Memcached' ) ) {
 				echo "</pre>\n";
 			}
 
-			if ( ! empty( $this->debug ) && $this->debug ) {
+			if ( $this->debug ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_dump -- Debug output method by design.
 				var_dump( $this->memcache_debug );
 			}
