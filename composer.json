@@ -44,6 +44,9 @@
       "koodimonni/composer-dropin-installer": true,
       "composer/installers": true
     },
-    "sort-packages": true
+    "sort-packages": true,
+    "platform": {
+      "php": "8.0"
+    }
   }
 }
