@@ -1,0 +1,13 @@
+{
+	"phpVersion": "8.3",
+	"mappings": {
+		"wp-content/plugins/wp-memcached": ".",
+		"wp-content/object-cache.php": "./object-cache.php"
+	},
+	"config": {
+		"WP_CACHE_KEY_SALT": "WPENVSALT"
+	},
+	"lifecycleScripts": {
+		"afterStart": "bash tests/integration/provision-wp-env.sh"
+	}
+}

@@ -1,0 +1,16 @@
+{
+	"name": "@achttienvijftien/wp-memcached",
+	"private": true,
+	"devDependencies": {
+		"@wordpress/env": "^10.0.0"
+	},
+	"scripts": {
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"env:destroy": "wp-env destroy",
+		"provision": "bash tests/integration/provision-wp-env.sh",
+		"test": "wp-env start && wp-env run tests-cli --env-cwd=wp-content/plugins/wp-memcached vendor/bin/phpunit",
+		"wp-env": "wp-env"
+	},
+	"packageManager": "pnpm@10.32.1"
+}

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- GitHub Actions CI: phpcs, PHPStan and the wp-env test suite run on every push and pull request.
+- PHPStan static analysis at level 6 with the WordPress extension, zero errors; run with `composer analyse`.
+- Test suite (PHPUnit) with a real memcached server: unit tests for the cache class and `wp_cache_*` functions, plus integration tests running the drop-in as the live object cache inside WordPress via `@wordpress/env`. Run with `pnpm test`.
+
+### Changed
+
+- `WP_Object_Cache::$cache_hits` and `$cache_misses` are now public, matching WordPress core's `WP_Object_Cache` shape so diagnostics tools such as Query Monitor can read them.
+- Bring the drop-in to the `achttienvijftien/building-techniques` coding standard (behavior-neutral): full docblocks, strict comparisons, explicit boolean precedence, no error silencing. phpcs now reports zero violations.
+- Native return types on all `WP_Object_Cache` methods; parameters stay untyped on purpose since WordPress core calls them with mixed values. `flush()` now returns a real boolean instead of an int.
+- The per-operation debug log (`group_ops`) is only recorded when debugging is enabled via `WP_MEMCACHED_DEBUG` or `WP_DEBUG`, removing per-request logging overhead in production. Stats counters are unaffected.
+
+### Fixed
+
+- `get_multi()` was broken on ext-memcached 3.x: it used the removed three-argument `getMulti()` signature (`ArgumentCountError` on every call, verified on 3.4.0) and would crash on any cache miss via an `array_combine()` size mismatch; it also resolved the server bucket from a stale loop variable. Misses now return `false` per key and fetched values land in the runtime cache.
+
+### Removed
+
+- Unused `WP_Object_Cache::$cache_enabled` property.
+
 ## [1.1.0] - 2024-12-05
 
 ### Changed

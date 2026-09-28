@@ -23,13 +23,30 @@
     "koodimonni/composer-dropin-installer": "^1.4"
   },
   "require-dev": {
+    "achttienvijftien/building-techniques": "^1.0",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
     "phpcompatibility/phpcompatibility-wp": "*",
-    "achttienvijftien/building-techniques": "^1.0"
+    "phpstan/phpstan": "^2.2",
+    "phpunit/phpunit": "^9.6",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "yoast/phpunit-polyfills": "^1.1"
   },
   "scripts": {
     "format": "phpcbf --report-summary --report-source",
-    "lint": "phpcs"
+    "lint": "phpcs",
+    "test": "phpunit",
+    "analyse": "phpstan analyse"
   },
-  "minimum-stability": "stable"
+  "minimum-stability": "stable",
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "koodimonni/composer-dropin-installer": true,
+      "composer/installers": true
+    },
+    "sort-packages": true,
+    "platform": {
+      "php": "8.0"
+    }
+  }
 }
